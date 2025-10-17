@@ -5,17 +5,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageCircle } from 'lucide-react';
+import { useGenerateToken } from '@/hooks/use-generate-token';
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const mutation = useGenerateToken();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock login - in real app, this would call API
-    console.log('Logging in:', { email, password });
-    navigate('/chat');
+    mutation.mutate({ email, password }, {
+      onSuccess: (data) => {
+        localStorage.setItem("authToken", data.data.token);
+        navigate("/chat");
+      },
+      onError: (error) => {
+        console.error("Login failed:", error);
+      }
+    });
   };
 
   return (
