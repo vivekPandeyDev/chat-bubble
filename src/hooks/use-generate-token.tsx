@@ -12,7 +12,7 @@ export const useGenerateToken = () =>
   useMutation<TokenSuccessResponse, TokenErrorResponse, TokenRequest>({
     mutationFn: generateToken,
     onSuccess: (data) => {
-      console.log("Token generated:", data.data.token);
+      console.log("Token generated for username:", data.data.username);
     },
     onError: (error) => {
       console.error("Error generating token:", error);

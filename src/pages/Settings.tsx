@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Settings as SettingsIcon, Bell, LogOut, Moon, Sun, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,11 +12,13 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
 import { getCurrentUser } from '@/data/mockData';
 import { useTheme } from 'next-themes';
+import { AuthContext } from '@/context/AuthContext';
 
 const Settings = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const currentUser = getCurrentUser();
+  const {logout} = useContext(AuthContext);
   
   const [profile, setProfile] = useState({
     username: currentUser.username,
@@ -37,6 +39,7 @@ const Settings = () => {
       title: 'Logged out',
       description: 'You have been successfully logged out',
     });
+    logout();
     navigate('/login');
   };
 

@@ -13,6 +13,7 @@ import Settings from "@/pages/Settings";
 import NotFound from "@/pages/NotFound";
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
+import PublicRoute from "./PublicRoute";
 
 const queryClient = new QueryClient();
 
@@ -26,8 +27,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<PublicRoute><Login/></PublicRoute>} />
+            <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
             <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
@@ -35,7 +36,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
         </AuthProvider>
-        <ReactQueryDevtools initialIsOpen={true} />
+        <ReactQueryDevtools initialIsOpen={false} />
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>

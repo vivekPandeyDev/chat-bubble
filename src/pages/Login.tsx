@@ -7,7 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { MessageCircle } from 'lucide-react';
 import { useGenerateToken } from '@/hooks/use-generate-token';
 import { AuthContext } from '@/context/AuthContext';
-
+import { toast } from '@/hooks/use-toast';
+import axios, { AxiosError } from 'axios';
+import { TokenErrorResponse } from '@/type/token';
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -23,7 +25,16 @@ const Login = () => {
         navigate("/chat");
       },
       onError: (error) => {
-        console.error("Login failed:", error);
+        // Type-safe check
+        let message = 'Please check your credentials and try again.';
+        if (axios.isAxiosError(error)) {
+          const axiosErr = error as AxiosError<TokenErrorResponse>;
+          message = axiosErr.response?.data?.detail || message;
+        }
+        toast({
+          title: 'Login failed',
+          description:  message,
+        });
       }
     });
   };
