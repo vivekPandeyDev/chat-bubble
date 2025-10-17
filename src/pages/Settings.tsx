@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { User, Settings as SettingsIcon, Bell } from "lucide-react";
 import { useTheme } from "next-themes";
 import { AuthContext } from "@/context/AuthContext";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import ProfileTab from "@/components/settting/ProfileTab";
 import AppearanceTab from "@/components/settting/AppearanceTab";
 import NotificationsTab from "@/components/settting/NotificationsTab";

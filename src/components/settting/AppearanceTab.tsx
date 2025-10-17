@@ -10,6 +10,7 @@ interface AppearanceTabProps {
 }
 
 const AppearanceTab = ({ theme, setTheme }: AppearanceTabProps) => {
+
   return (
     <Card>
       <CardHeader>

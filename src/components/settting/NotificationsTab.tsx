@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -7,14 +7,23 @@ import { Volume2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const NotificationsTab = () => {
-  const [notifications, setNotifications] = useState({
-    messages: true,
-    mentions: true,
-    groupInvites: true,
-    sounds: true,
-    desktop: true,
+  const [notifications, setNotifications] = useState(() => {
+    const stored = localStorage.getItem("notifications");
+    return stored
+      ? JSON.parse(stored)
+      : {
+        messages: true,
+        mentions: true,
+        groupInvites: true,
+        sounds: true,
+        desktop: true,
+      };
   });
 
+  useEffect(() => {
+    localStorage.setItem("notifications", JSON.stringify(notifications));
+  }, [notifications]);
+  
   const handleDesktopToggle = (checked: boolean) => {
     if (checked && "Notification" in window) {
       Notification.requestPermission().then((permission) => {
