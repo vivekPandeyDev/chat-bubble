@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { LogOut } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import type { UserResponse } from "@/type/user";
+import { useUploadProfileImage } from "@/hooks/user-profile-upload";
 
 interface ProfileTabProps {
     currentUser: UserResponse;
@@ -17,7 +18,9 @@ interface ProfileTabProps {
 
 const ProfileTab = ({ currentUser, logout }: ProfileTabProps) => {
     console.log("Current User in ProfileTab:", currentUser);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
+    const mutation = useUploadProfileImage(currentUser.userId);
     const [profile, setProfile] = useState({
         username: currentUser.username,
         email: currentUser.email,
@@ -31,12 +34,23 @@ const ProfileTab = ({ currentUser, logout }: ProfileTabProps) => {
     };
 
     const handleProfileUpdate = () => {
+
         toast({ title: "Profile updated", description: "Your profile has been successfully updated" });
+
+
     };
 
-    const handleAvatarChange = () => {
-        toast({ description: "Avatar upload feature coming soon" });
+    const handleAvatarChange = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        fileInputRef.current?.click();
     };
+
+    const uploadAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files?.[0]) {
+            mutation.mutate(e.target.files[0]);
+            toast({ description: "Your profile Avatar has been successfully updated" });
+        }
+    }
 
     return (
         <>
@@ -53,6 +67,14 @@ const ProfileTab = ({ currentUser, logout }: ProfileTabProps) => {
                                 {profile.username.slice(0, 2).toUpperCase()}
                             </AvatarFallback>
                         </Avatar>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            id="avatarUpload"
+                            className="hidden"
+                            ref={fileInputRef}
+                            onChange={uploadAvatar}
+                        />
                         <Button variant="outline" onClick={handleAvatarChange}>
                             Change Avatar
                         </Button>

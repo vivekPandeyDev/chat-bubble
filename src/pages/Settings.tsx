@@ -15,7 +15,7 @@ const Settings = () => {
   const { logout } = useContext(AuthContext)!;
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
-
+  console.log("Current User in Settings:", currentUser);
   if (isLoading || !currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">

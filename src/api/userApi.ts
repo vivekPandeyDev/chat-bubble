@@ -1,5 +1,4 @@
 // src/api/userApi.ts
-import axios from "axios";
 import axiosInstance from "./axiosInstance";
 import { UserSuccessResponse } from "@/type/user";
 
@@ -8,4 +7,21 @@ export const fetchCurrentUser = async (token: string) => {
     headers: { Authorization: `Bearer ${token}` },
   });
   return response.data.data;
+};
+
+export const uploadProfileImage = async (userId: string, file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await axiosInstance.post(
+    `/api/user/upload/profile/${userId}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return response.data;
 };
