@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Settings as SettingsIcon, Bell, LogOut, Moon, Sun, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,20 +10,31 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
-import { getCurrentUser } from '@/data/mockData';
 import { useTheme } from 'next-themes';
 import { AuthContext } from '@/context/AuthContext';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 const Settings = () => {
+  const { data: currentUser } = useCurrentUser();
   const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
   const { theme, setTheme } = useTheme();
-  const currentUser = getCurrentUser();
-  const {logout} = useContext(AuthContext);
-  
+
+  useEffect(() => {
+    if (currentUser) {
+      console.log("Current User Data:", currentUser);
+      setProfile({
+        username: currentUser.username,
+        email: currentUser.email,
+        status: currentUser.status.toLowerCase(),
+      });
+    }
+  }, [currentUser]);
+
   const [profile, setProfile] = useState({
-    username: currentUser.username,
-    email: currentUser.email,
-    status: currentUser.status,
+    username:  '',
+    email:  '',
+    status: 'offline',
   });
 
   const [notifications, setNotifications] = useState({
@@ -33,6 +44,15 @@ const Settings = () => {
     sounds: true,
     desktop: true,
   });
+
+
+
+  if (!currentUser) {
+    return (<div className="min-h-screen flex items-center justify-center">
+      <p className="text-muted-foreground">Loading user data...</p>
+    </div>
+    );
+  }
 
   const handleLogout = () => {
     toast({
@@ -96,7 +116,7 @@ const Settings = () => {
               <CardContent className="space-y-6">
                 <div className="flex items-center gap-6">
                   <Avatar className="h-24 w-24">
-                    <AvatarImage src={currentUser.avatar} />
+                    <AvatarImage src={currentUser.avatarUrl} />
                     <AvatarFallback className="text-2xl">
                       {profile.username.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
