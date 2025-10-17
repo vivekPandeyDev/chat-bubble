@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,18 +6,20 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageCircle } from 'lucide-react';
 import { useGenerateToken } from '@/hooks/use-generate-token';
+import { AuthContext } from '@/context/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const mutation = useGenerateToken();
+  const { login } = useContext(AuthContext);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     mutation.mutate({ email, password }, {
       onSuccess: (data) => {
-        localStorage.setItem("authToken", data.data.token);
+        login(data.data.token, data.data.username, data.data.expiresAt);
         navigate("/chat");
       },
       onError: (error) => {
@@ -72,8 +74,8 @@ const Login = () => {
                 />
               </div>
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-glow))] hover:opacity-90 transition-opacity shadow-[var(--shadow-md)]"
               >
                 Sign In
@@ -81,8 +83,8 @@ const Login = () => {
 
               <div className="text-center text-sm">
                 <span className="text-muted-foreground">Don't have an account? </span>
-                <Button 
-                  variant="link" 
+                <Button
+                  variant="link"
                   className="p-0 h-auto font-semibold text-primary"
                   onClick={() => navigate('/signup')}
                 >
