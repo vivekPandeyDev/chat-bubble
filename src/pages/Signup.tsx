@@ -5,18 +5,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageCircle } from 'lucide-react';
+import { useSignup } from '@/hooks/use-sign-up';
 
 const Signup = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
+  const mutation = useSignup();
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
     // Mock signup - in real app, this would call API
+    mutation.mutate({ username, email, password });
     console.log('Signing up:', { username, email, password });
-    navigate('/chat');
+    navigate('/login');
   };
 
   return (

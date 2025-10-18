@@ -20,3 +20,9 @@ export interface UserErrorResponse {
   detail: string;
   instance: string;
 }
+
+export interface SignupRequest {
+  username: string;
+  email: string;
+  password: string;
+}

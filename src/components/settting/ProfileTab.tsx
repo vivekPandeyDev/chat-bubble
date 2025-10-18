@@ -9,7 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { LogOut } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import type { UserResponse } from "@/type/user";
-import { useUploadProfileImage } from "@/hooks/user-profile-upload";
+import { useUploadProfileImage } from "@/hooks/use-user-profile-upload";
 
 interface ProfileTabProps {
     currentUser: UserResponse;

@@ -8,15 +8,12 @@ import { mockChatRooms, getCurrentUser, getDirectChatName, getUserById } from '@
 import { ChatRoom } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 import CreateGroupDialog from './CreateGroupDialog';
+import { useCurrentUser } from '@/hooks/use-current-user';
 
 interface ChatSidebarProps {
   selectedRoom: ChatRoom | null;
   onSelectRoom: (room: ChatRoom) => void;
 }
-
-const ChatSidebar = ({ selectedRoom, onSelectRoom }: ChatSidebarProps) => {
-  const currentUser = getCurrentUser();
-
   const formatTimestamp = (date: Date) => {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
@@ -30,17 +27,28 @@ const ChatSidebar = ({ selectedRoom, onSelectRoom }: ChatSidebarProps) => {
     return `${days}d ago`;
   };
 
+const ChatSidebar = ({ selectedRoom, onSelectRoom }: ChatSidebarProps) => {
+  const { data: currentUser, isLoading } = useCurrentUser();
+
+  if (isLoading || !currentUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Loading user data...</p>
+      </div>
+    );
+  }
+
   const getRoomAvatar = (room: ChatRoom) => {
     if (room.avatar) return room.avatar;
     if (room.type === 'direct') {
-      const otherUserId = room.participants.find(id => id !== currentUser.id);
+      const otherUserId = room.participants.find(id => id !== currentUser.userId);
       return getUserById(otherUserId || '')?.avatar;
     }
     return undefined;
   };
 
   const getRoomName = (room: ChatRoom) => {
-    return getDirectChatName(room, currentUser.id);
+    return getDirectChatName(room, currentUser.userId);
   };
 
   return (
@@ -50,7 +58,7 @@ const ChatSidebar = ({ selectedRoom, onSelectRoom }: ChatSidebarProps) => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10 ring-2 ring-primary/20">
-              <AvatarImage src={currentUser.avatar} />
+              <AvatarImage src={currentUser.avatarUrl} />
               <AvatarFallback>{currentUser.username[0].toUpperCase()}</AvatarFallback>
             </Avatar>
             <div>

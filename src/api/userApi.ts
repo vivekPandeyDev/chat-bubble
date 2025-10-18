@@ -1,6 +1,6 @@
 // src/api/userApi.ts
 import axiosInstance from "./axiosInstance";
-import { UserSuccessResponse } from "@/type/user";
+import { SignupRequest, UserSuccessResponse } from "@/type/user";
 
 export const fetchCurrentUser = async (token: string) => {
   const response = await axiosInstance.get<UserSuccessResponse>("/api/token/me", {
@@ -8,6 +8,11 @@ export const fetchCurrentUser = async (token: string) => {
   });
   return response.data.data;
 };
+
+export const signupUser = async (data : SignupRequest) => {
+  const response = await axiosInstance.post<UserSuccessResponse>("/api/user/register", data);
+  return response.data.data;
+}
 
 export const uploadProfileImage = async (userId: string, file: File) => {
   const formData = new FormData();
