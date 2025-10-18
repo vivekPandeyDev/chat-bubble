@@ -1,3 +1,4 @@
+import type { MouseEvent } from 'react';
 import { Search, Settings } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -9,27 +10,28 @@ import { ChatRoom } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 import CreateGroupDialog from './CreateGroupDialog';
 import { useCurrentUser } from '@/hooks/use-current-user';
+import { useNavigate } from 'react-router-dom';
 
 interface ChatSidebarProps {
   selectedRoom: ChatRoom | null;
   onSelectRoom: (room: ChatRoom) => void;
 }
-  const formatTimestamp = (date: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
+const formatTimestamp = (date: Date) => {
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    return `${days}d ago`;
-  };
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  return `${days}d ago`;
+};
 
 const ChatSidebar = ({ selectedRoom, onSelectRoom }: ChatSidebarProps) => {
   const { data: currentUser, isLoading } = useCurrentUser();
-
+  const navigate = useNavigate();
   if (isLoading || !currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -51,6 +53,10 @@ const ChatSidebar = ({ selectedRoom, onSelectRoom }: ChatSidebarProps) => {
     return getDirectChatName(room, currentUser.userId);
   };
 
+  function navigateToSettings(event: MouseEvent<HTMLButtonElement>): void {
+    navigate('/settings');
+  }
+
   return (
     <div className="w-80 border-r border-border bg-[hsl(var(--sidebar-bg))] flex flex-col h-screen flex-shrink-0">
       {/* Header */}
@@ -69,7 +75,7 @@ const ChatSidebar = ({ selectedRoom, onSelectRoom }: ChatSidebarProps) => {
               </div>
             </div>
           </div>
-          <Button variant="ghost" size="icon" className="h-9 w-9">
+          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={navigateToSettings}>
             <Settings className="h-4 w-4" />
           </Button>
         </div>
@@ -77,8 +83,8 @@ const ChatSidebar = ({ selectedRoom, onSelectRoom }: ChatSidebarProps) => {
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search chats..." 
+          <Input
+            placeholder="Search chats..."
             className="pl-9 bg-background/50 border-border/50"
           />
         </div>
@@ -108,13 +114,13 @@ const ChatSidebar = ({ selectedRoom, onSelectRoom }: ChatSidebarProps) => {
                     {room.type === 'direct' && (
                       <div className={cn(
                         "absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-[hsl(var(--sidebar-bg))]",
-                        getUserById(room.participants.find(id => id !== currentUser.id) || '')?.status === 'online' 
-                          ? "bg-[hsl(var(--online))]" 
+                        getUserById(room.participants.find(id => id !== currentUser.id) || '')?.status === 'online'
+                          ? "bg-[hsl(var(--online))]"
                           : "bg-[hsl(var(--offline))]"
                       )} />
                     )}
                   </div>
-                  
+
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
@@ -137,7 +143,7 @@ const ChatSidebar = ({ selectedRoom, onSelectRoom }: ChatSidebarProps) => {
                         </span>
                       )}
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <p className={cn(
                         "text-sm truncate",
@@ -146,7 +152,7 @@ const ChatSidebar = ({ selectedRoom, onSelectRoom }: ChatSidebarProps) => {
                         {room.lastMessage?.content || 'No messages yet'}
                       </p>
                       {room.unreadCount > 0 && (
-                        <Badge 
+                        <Badge
                           className="ml-2 bg-accent text-accent-foreground font-medium px-2 py-0.5 min-w-[20px] justify-center"
                         >
                           {room.unreadCount}
