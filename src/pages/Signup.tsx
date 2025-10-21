@@ -6,19 +6,29 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageCircle } from 'lucide-react';
 import { useSignup } from '@/hooks/use-sign-up';
+import { toast } from '@/hooks/use-toast';
+
 
 const Signup = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const mutation = useSignup();
+  const { mutation, validationErrors } = useSignup();
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock signup - in real app, this would call API
-    mutation.mutate({ username, email, password });
-    console.log('Signing up:', { username, email, password });
-    navigate('/login');
+    mutation.mutate({ username, email, password }, {
+      onSuccess: (_) => {
+        toast({
+          title: "Signup Successful",
+          description: "Your account has been created. Please log in.",
+          variant: "default",
+        });
+        navigate("/login");
+
+      }
+    }
+    );
   };
 
   return (
@@ -40,6 +50,15 @@ const Signup = () => {
             <CardDescription>Sign up to join our community</CardDescription>
           </CardHeader>
           <CardContent>
+            {validationErrors.length > 0 && (
+              <div className="bg-red-100 text-red-700 p-2 rounded mb-2">
+                <ul>
+                  {validationErrors.map((msg, i) => (
+                    <li key={i}>{msg}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <form onSubmit={handleSignup} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="username">Username</Label>
@@ -80,8 +99,8 @@ const Signup = () => {
                 />
               </div>
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-glow))] hover:opacity-90 transition-opacity shadow-[var(--shadow-md)]"
               >
                 Create Account
@@ -89,8 +108,8 @@ const Signup = () => {
 
               <div className="text-center text-sm">
                 <span className="text-muted-foreground">Already have an account? </span>
-                <Button 
-                  variant="link" 
+                <Button
+                  variant="link"
                   className="p-0 h-auto font-semibold text-primary"
                   onClick={() => navigate('/login')}
                 >

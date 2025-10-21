@@ -25,8 +25,8 @@ const Login = () => {
         console.log("Expires At:", new Date(expiresAt * 1000).toLocaleString());
         console.log("Issuer:", issuer);
         console.groupEnd();
-        //login(token, username, expiresAt);
-        //navigate("/chat");
+        login(token, username, expiresAt);
+        navigate("/chat");
       }
     });
   };
