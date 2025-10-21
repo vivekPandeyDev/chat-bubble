@@ -3,10 +3,11 @@ import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { fetchRoomProjections } from "../api/roomApi";
 import type { RoomProjectionResponse } from "../type/room";
+import { AxiosErrorWithProblem } from "@/type/error";
 
 export const useRoomProjections = (userId: string | undefined) => {
   const { token } = useContext(AuthContext);
-  return useQuery<RoomProjectionResponse>({
+  return useQuery<RoomProjectionResponse,AxiosErrorWithProblem>({
     queryKey: ["roomProjections", userId],
     queryFn: async () => {
       if (!token) throw new Error("No auth token");

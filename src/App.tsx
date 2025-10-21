@@ -15,6 +15,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import { queryClient } from "@/queryClient";
+import Error from "./pages/Error";
 
 const router = createBrowserRouter(
   [
@@ -23,6 +24,7 @@ const router = createBrowserRouter(
     { path: "/signup", element: <PublicRoute><Signup /></PublicRoute> },
     { path: "/chat", element: <ProtectedRoute><Chat /></ProtectedRoute> },
     { path: "/settings", element: <ProtectedRoute><Settings /></ProtectedRoute> },
+    {path : "/error", element: <Error />},
     { path: "*", element: <NotFound /> },
   ],
   {
