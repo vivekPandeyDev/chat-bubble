@@ -1,18 +1,16 @@
 
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchMessagesByRoom } from "@/api/messageApi";
-import { PaginatedMessagesResponse } from "@/type/message";
-import { AxiosErrorWithProblem } from "@/type/error";
 
 
-
-export const useChatMessages = (roomId: string | null, page = 0,size=10) => {
-  return useQuery<PaginatedMessagesResponse,AxiosErrorWithProblem>({
-    queryKey: ["messages", roomId, page],
-    queryFn: () => {
-      if (!roomId) throw new Error("No selected room");
-      return fetchMessagesByRoom(roomId, page, size);
+export const useChatMessages = (roomId: string | null) => {
+  return useInfiniteQuery({
+    queryKey: ['messages', roomId],
+    queryFn: ({ pageParam }) => {
+      return fetchMessagesByRoom(roomId,pageParam)
     },
-    enabled: !!roomId,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined,  
+    enabled : !!roomId   
   });
 };
