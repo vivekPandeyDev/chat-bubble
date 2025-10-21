@@ -5,7 +5,7 @@ import ChatSidebar from './sidebar/ChatSidebar';
 import { NotificationPanel } from './NotificationPanel';
 import { Button } from '@/components/ui/button';
 import {  getUnreadNotifications } from '@/data/mockData';
-import ChatPanel from './ChatPanel';
+import ChatPanel from './panel/ChatPanel';
 
 const ChatLayout = () => {
   const navigate = useNavigate();
@@ -58,7 +58,7 @@ const ChatLayout = () => {
             </Button>
           </div>
         </div>
-        {/* <ChatPanel selectedRoomId={selectedRoomId} /> */}
+        <ChatPanel selectedRoomId={selectedRoomId} />
       </div>
       </div>
     </div>

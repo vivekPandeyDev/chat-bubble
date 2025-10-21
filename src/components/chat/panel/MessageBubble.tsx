@@ -3,11 +3,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Check, CheckCheck, File, Download } from 'lucide-react';
-import { Message, getUserById } from '@/data/mockData';
+import {  getUserById } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 import MessageActions from './MessageActions';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
+import { Message } from '@/type/message';
 
 interface MessageBubbleProps {
   message: Message;
