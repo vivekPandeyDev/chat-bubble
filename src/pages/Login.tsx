@@ -21,9 +21,9 @@ const Login = () => {
       onSuccess: (data) => {
         const {token,username,expiresAt,issuer} = data.data;
         console.group("Login Success");
-        console.log("Username:", username);
-        console.log("Expires At:", new Date(expiresAt * 1000).toLocaleString());
-        console.log("Issuer:", issuer);
+        console.info("Username:", username);
+        console.info("Expires At:", new Date(expiresAt * 1000).toLocaleString());
+        console.info("Issuer:", issuer);
         console.groupEnd();
         login(token, username, expiresAt);
         navigate("/chat");
