@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Settings } from 'lucide-react';
-import ChatSidebar from './ChatSidebar';
-import ChatPanel from './ChatPanel';
+import ChatSidebar from './sidebar/ChatSidebar';
 import { NotificationPanel } from './NotificationPanel';
 import { Button } from '@/components/ui/button';
-import { ChatRoom, getUnreadNotifications } from '@/data/mockData';
+import {  getUnreadNotifications } from '@/data/mockData';
+import ChatPanel from './ChatPanel';
 
 const ChatLayout = () => {
   const navigate = useNavigate();
-  const [selectedRoom, setSelectedRoom] = useState<ChatRoom | null>(null);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
 
   // Request notification permission on mount
   useEffect(() => {
@@ -39,8 +39,8 @@ const ChatLayout = () => {
     <div className="h-screen overflow-hidden bg-gradient-to-br from-background via-background to-primary/5">
       <div className="flex h-full">
         <ChatSidebar 
-          selectedRoom={selectedRoom} 
-          onSelectRoom={setSelectedRoom}
+          onSelectRoom={ setSelectedRoomId}
+          selectedRoomId={selectedRoomId}
       />
       <div className="flex-1 flex flex-col min-w-0">
         <div className="h-16 border-b bg-background/50 backdrop-blur-sm flex items-center justify-between px-4 flex-shrink-0">
@@ -58,7 +58,7 @@ const ChatLayout = () => {
             </Button>
           </div>
         </div>
-        <ChatPanel selectedRoom={selectedRoom} />
+        {/* <ChatPanel selectedRoomId={selectedRoomId} /> */}
       </div>
       </div>
     </div>

@@ -12,6 +12,7 @@ export const useCurrentUser = () => {
     queryFn: async () => {
       if (!token) throw new Error("No auth token");
       return fetchCurrentUser(token);
-    }
+    },
+    enabled: !!token, // prevents running until both are ready
   });
 };

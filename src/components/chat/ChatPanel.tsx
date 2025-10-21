@@ -22,12 +22,12 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 interface ChatPanelProps {
-  selectedRoom: ChatRoom | null;
+  selectedRoomId: string | null;
 }
 
 const MESSAGES_PER_PAGE = 20;
 
-const ChatPanel = ({ selectedRoom }: ChatPanelProps) => {
+const ChatPanel = ({ selectedRoomId }: ChatPanelProps) => {
   const { toast } = useToast();
   const [messageInput, setMessageInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -44,7 +44,7 @@ const ChatPanel = ({ selectedRoom }: ChatPanelProps) => {
 
   // Load initial messages when room changes
   useEffect(() => {
-    if (selectedRoom) {
+    if (selectedRoomId) {
       const allMessages = getMessagesByChatRoom(selectedRoom.id);
       const initial = allMessages.slice(-MESSAGES_PER_PAGE);
       setDisplayedMessages(initial);
