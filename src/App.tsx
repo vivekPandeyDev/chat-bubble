@@ -14,8 +14,7 @@ import NotFound from "@/pages/NotFound";
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
-
-const queryClient = new QueryClient();
+import { queryClient } from "@/queryClient";
 
 const App = () => (
   
