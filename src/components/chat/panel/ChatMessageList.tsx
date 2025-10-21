@@ -12,6 +12,7 @@ interface ChatMessageListProps {
 }
 
 const ChatMessageList = ({ messages, currentUserId, hasMore, isLoading, onLoadMore }: ChatMessageListProps) => {
+  console.log('currentUserId in ChatMessageList:', currentUserId);
   return (
     <div className="space-y-4 max-w-4xl mx-auto" onScrollCapture={(e) => {
       const div = e.target as HTMLDivElement;
@@ -31,7 +32,7 @@ const ChatMessageList = ({ messages, currentUserId, hasMore, isLoading, onLoadMo
 
       {messages.map(msg => (
         <MessageBubble
-          key={msg.id}
+          key={msg.messageId}
           message={msg}
           isCurrentUser={msg.senderId === currentUserId}
         />

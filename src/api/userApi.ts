@@ -9,6 +9,11 @@ export const fetchCurrentUser = async (token: string) => {
   return response.data.data;
 };
 
+export const fetchUserById = async (userId: string) => {
+  const response = await axiosInstance.get<UserSuccessResponse>(`/api/user/${userId}`);
+  return response.data.data;
+}
+
 export const signupUser = async (data : SignupRequest) => {
   const response = await axiosInstance.post<UserSuccessResponse>("/api/user/register", data);
   return response.data.data;

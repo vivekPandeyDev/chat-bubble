@@ -1,11 +1,11 @@
 export interface Message {
-  id: string;
+  messageId: string;
   chatRoomId: string;
   senderId: string;
   content: string;
-  timestamp: string;
-  status: 'sent' | 'delivered' | 'read';
-  type: 'text' | 'image' | 'file';
+  sentAt: string;
+  status: 'SENT' | 'DELIVERED' | 'SEEN';
+  type: 'TEXT' | 'IMAGE' | 'FILE';
 }
 
 export interface PaginatedMessagesResponse {

@@ -29,7 +29,6 @@ const ChatPanel = ({ selectedRoomId }: ChatPanelProps) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data: messagesData, isLoading } = useChatMessages(selectedRoomId, currentPage);
-
   // Update displayed messages when data changes
   useEffect(() => {
     if (!messagesData) return;
@@ -61,6 +60,7 @@ const ChatPanel = ({ selectedRoomId }: ChatPanelProps) => {
       setIsLoadingMore(true);
     }
   };
+  console.log('selectedRoomId in ChatPanel:', selectedRoomId);
 
   if (!selectedRoomId) {
     return (

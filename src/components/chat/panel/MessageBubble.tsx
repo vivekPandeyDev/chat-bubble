@@ -3,12 +3,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Check, CheckCheck, File, Download } from 'lucide-react';
-import {  getUserById } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 import MessageActions from './MessageActions';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { Message } from '@/type/message';
+import { useFetchUserByUserId } from '@/hooks/use-fetch-user-by-id';
 
 interface MessageBubbleProps {
   message: Message;
@@ -18,9 +18,8 @@ interface MessageBubbleProps {
 
 const MessageBubble = ({ message, isCurrentUser, onReply }: MessageBubbleProps) => {
   const { toast } = useToast();
-  const sender = getUserById(message.senderId);
+  const {data : sender, isLoading} = useFetchUserByUserId(message.senderId);
   const [isEditing, setIsEditing] = useState(false);
-
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   };
@@ -42,7 +41,7 @@ const MessageBubble = ({ message, isCurrentUser, onReply }: MessageBubbleProps) 
   };
 
   const handleDelete = () => {
-    console.log('Deleting message:', message.id);
+    console.log('Deleting message:', message.messageId);
     toast({
       title: 'Message deleted',
       description: 'Message has been removed',
@@ -56,7 +55,7 @@ const MessageBubble = ({ message, isCurrentUser, onReply }: MessageBubbleProps) 
     )}>
       {!isCurrentUser && (
         <Avatar className="h-8 w-8 mt-1">
-          <AvatarImage src={sender?.avatar} />
+          <AvatarImage src={sender?.avatarUrl} />
           <AvatarFallback>{sender?.username[0].toUpperCase()}</AvatarFallback>
         </Avatar>
       )}
@@ -79,7 +78,7 @@ const MessageBubble = ({ message, isCurrentUser, onReply }: MessageBubbleProps) 
               : "bg-[hsl(var(--message-received))] text-[hsl(var(--message-received-foreground))] border-border"
           )}>
             {/* Image message */}
-            {message.type === 'image' && (
+            {message.type === 'IMAGE' && (
               <div className="max-w-xs">
                 <img 
                   src={message.content || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400'} 
@@ -91,7 +90,7 @@ const MessageBubble = ({ message, isCurrentUser, onReply }: MessageBubbleProps) 
             )}
 
             {/* File message */}
-            {message.type === 'file' && (
+            {message.type === 'FILE' && (
               <div className="px-4 py-3 flex items-center gap-3">
                 <div className={cn(
                   "h-10 w-10 rounded-lg flex items-center justify-center",
@@ -114,7 +113,7 @@ const MessageBubble = ({ message, isCurrentUser, onReply }: MessageBubbleProps) 
             )}
 
             {/* Text message */}
-            {message.type === 'text' && (
+            {message.type === 'TEXT' && (
               <div className="px-4 py-2">
                 <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
               </div>
@@ -133,12 +132,12 @@ const MessageBubble = ({ message, isCurrentUser, onReply }: MessageBubbleProps) 
           "flex items-center gap-1 text-xs text-muted-foreground mt-1 px-1",
           isCurrentUser && "flex-row-reverse"
         )}>
-          <span>{formatDistanceToNow(message.timestamp, { addSuffix: true })}</span>
+          <span>{formatDistanceToNow(message.sentAt, { addSuffix: true })}</span>
           {isCurrentUser && (
             <>
-              {message.status === 'read' && <CheckCheck className="h-3 w-3 text-primary" />}
-              {message.status === 'delivered' && <CheckCheck className="h-3 w-3" />}
-              {message.status === 'sent' && <Check className="h-3 w-3" />}
+              {message.status === 'SEEN' && <CheckCheck className="h-3 w-3 text-primary" />}
+              {message.status === 'DELIVERED' && <CheckCheck className="h-3 w-3" />}
+              {message.status === 'SENT' && <Check className="h-3 w-3" />}
             </>
           )}
         </div>
