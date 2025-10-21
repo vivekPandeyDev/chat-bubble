@@ -2,6 +2,7 @@
 import { Loader2, Badge } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import { Message } from '@/type/message';
+import { RefObject, useEffect, useLayoutEffect, useRef } from 'react';
 
 interface ChatMessageListProps {
   messages: Message[];
@@ -9,14 +10,15 @@ interface ChatMessageListProps {
   hasMore: boolean;
   isLoading: boolean;
   onLoadMore: () => void;
+   scrollRef: RefObject<HTMLDivElement>;
 }
 
-const ChatMessageList = ({ messages, currentUserId, hasMore, isLoading, onLoadMore }: ChatMessageListProps) => {
-  console.log('currentUserId in ChatMessageList:', currentUserId);
+const ChatMessageList = ({ messages, currentUserId, hasMore, isLoading, onLoadMore,scrollRef }: ChatMessageListProps) => {
+
   return (
-    <div className="space-y-4 max-w-4xl mx-auto" onScrollCapture={(e) => {
+    <div className="space-y-4 max-w-4xl mx-auto bg-red h-[70vh] overflow-y-auto" ref={scrollRef} onScrollCapture={(e) => {
       const div = e.target as HTMLDivElement;
-      if (div.scrollTop < 100 && hasMore && !isLoading) onLoadMore();
+      if (div.scrollTop < 100 && hasMore && !isLoading) { onLoadMore(); };
     }}>
       {isLoading && (
         <div className="flex justify-center py-4">

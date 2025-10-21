@@ -23,7 +23,7 @@ const formatTimestamp = (date: Date) => {
 };
 
 const ChatRoomListItem = ({ room, isActive, onSelect }: ChatRoomListItemProps) => {
-  console.log('Rendering ChatRoomListItem for room:', room.roomName, 'isActive:', isActive);
+  console.info('rendering chat room list for room id:',room.roomId, ', room name:', room.roomName, 'isActive:', isActive);
   const avatar = room.roomProfileUrl;
   const name = room.roomName;
   const unreadCount = room.unreadCount || 1;
@@ -72,6 +72,7 @@ const ChatRoomListItem = ({ room, isActive, onSelect }: ChatRoomListItemProps) =
                     : 'text-muted-foreground'
                 )}
               >
+                {/* TODO : update backend to fetch last message time stamp */}
                 {formatTimestamp(new Date("2025-10-21T09:15:00Z"))}
               </span>
             )}

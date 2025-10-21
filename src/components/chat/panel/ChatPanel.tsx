@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, UIEvent } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useToast } from '@/hooks/use-toast';
 import ChatHeader from './ChatHeader';
 import ChatMessageList from './ChatMessageList';
 import ChatInputArea from './ChatInputArea';
@@ -9,59 +8,85 @@ import TypingIndicator from './TypingIndicator';
 import { useChatMessages } from '@/hooks/use-chat-message';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { Message } from '@/type/message';
+import { useNavigate } from 'react-router-dom';
+import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 
-
+export const MESSAGES_PER_PAGE = 10;
 interface ChatPanelProps {
   selectedRoomId: string | null;
 }
 
 const ChatPanel = ({ selectedRoomId }: ChatPanelProps) => {
-  const { toast } = useToast();
-  const { data: currentUser, isLoading: isUserLoading } = useCurrentUser();
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [showGroupInfo, setShowGroupInfo] = useState(false);
+  console.info('selectedRoomId in ChatPanel:', selectedRoomId);
+  const navigate = useNavigate();
+  const [page, setPage] = useState(0);
+  const { data: currentUser, isLoading: isUserLoading, error: userError } = useCurrentUser();
+  const { data: messagesData, isLoading: isMessageLoading, error: chatError } = useChatMessages(selectedRoomId, page, MESSAGES_PER_PAGE);
+  const [loading, setLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const [showGroupInfo, setShowGroupInfo] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const [displayedMessages, setDisplayedMessages] = useState<Message[]>([]);
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: messagesData, isLoading } = useChatMessages(selectedRoomId, currentPage);
-  // Update displayed messages when data changes
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const didInitialScroll = useRef(false);
+
+  // Scroll only once on first load
   useEffect(() => {
-    if (!messagesData) return;
+    if (didInitialScroll.current) return;
+    if (displayedMessages.length === 0) return;
 
-    if (currentPage === 1) {
-      setDisplayedMessages(messagesData.content);
-    } else {
-      // prepend older messages when loading more
-      setDisplayedMessages(prev => [...messagesData.content, ...prev]);
+    const el = scrollRef.current;
+    if (!el) return;
+
+    requestAnimationFrame(() => {
+      el.scrollTop = el.scrollHeight;
+      didInitialScroll.current = true;
+    });
+  }, [displayedMessages.length]);
+
+  // handle errors
+  useEffect(() => {
+    if (userError) {
+      console.error("Error fetching current user:", userError?.message)
+      navigate("/error", {
+        state: {
+          message: (userError).message || "Something went wrong.",
+          statusCode: (userError).response?.data?.status || 500,
+        },
+        replace: true,
+      });
     }
 
-    setHasMoreMessages(currentPage < messagesData.totalPages);
-    setIsLoadingMore(false);
+  }, [userError]);
 
-    scrollToBottom(currentPage === 1);
+  const messsages = messagesData?.content;
+
+  // Initial load
+  useEffect(() => {
+    if (messsages) {
+      if (page === 0) {
+        setDisplayedMessages(messsages.reverse());
+      } else {
+        // prepend older messages
+        setDisplayedMessages(prev => [...messsages.reverse(), ...prev]);
+      }
+      setHasMoreMessages(messsages.length === MESSAGES_PER_PAGE);
+      setLoading(false);
+    }
   }, [messagesData]);
 
-  const scrollToBottom = (force = false) => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: force ? "auto" : "smooth" });
+
+  const loadMore = () => {
+    if (!loading && hasMoreMessages) {
+      setLoading(true);
+      setPage(prev => prev + 1);
     }
   };
 
-  const handleLoadMore = () => {
-    if (!selectedRoomId || isLoadingMore || !messagesData) return;
 
-    if (currentPage < messagesData.totalPages) {
-      setCurrentPage(prev => prev + 1);
-      setIsLoadingMore(true);
-    }
-  };
-  console.log('selectedRoomId in ChatPanel:', selectedRoomId);
-
+  // if no room is selected
   if (!selectedRoomId) {
     return (
       <div className="flex-1 flex items-center justify-center bg-background">
@@ -72,6 +97,18 @@ const ChatPanel = ({ selectedRoomId }: ChatPanelProps) => {
     );
   }
 
+  if (isUserLoading || isMessageLoading || !currentUser) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 space-y-4">
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin"></div>
+          <div className="absolute inset-0 border-4 border-t-green-500 border-gray-200 rounded-full animate-spin animation-delay-150"></div>
+        </div>
+      </div>
+    );
+  }
+
+  console.log('message:', displayedMessages)
   return (
     <div className="flex-1 flex flex-col h-full bg-background">
       <ChatHeader
@@ -80,21 +117,22 @@ const ChatPanel = ({ selectedRoomId }: ChatPanelProps) => {
         status={"Online"}
         onToggleGroupInfo={() => setShowGroupInfo(!showGroupInfo)}
       />
+      <ScrollAreaPrimitive.Root className="flex-1 px-6 py-4">
+        <ScrollAreaPrimitive.Viewport className="h-full">
+          <ChatMessageList
+            messages={displayedMessages}
+            currentUserId={currentUser.userId}
+            onLoadMore={loadMore}
+            hasMore={hasMoreMessages}
+            isLoading={loading}
+            scrollRef={scrollRef}
+          />
+        </ScrollAreaPrimitive.Viewport>
+        {isTyping && <TypingIndicator avatarUrl={currentUser.avatarUrl} username={currentUser.username}/>  }
+        <ScrollAreaPrimitive.Scrollbar orientation="vertical" />
+      </ScrollAreaPrimitive.Root>
 
-      <ScrollArea className="flex-1 px-6 py-4">
-        <ChatMessageList
-          messages={displayedMessages}
-          currentUserId={currentUser.userId}
-          onLoadMore={handleLoadMore}
-          hasMore={hasMoreMessages}
-          isLoading={isLoadingMore}
-        />
-
-        {isTyping && <TypingIndicator />}
-        <div ref={messagesEndRef} />
-      </ScrollArea>
-
-      <ChatInputArea selectedRoomId={selectedRoomId} onMessageSent={() => scrollToBottom()} />
+      <ChatInputArea selectedRoomId={selectedRoomId} onMessageSent={() => { }} onTypingChange={setIsTyping} />
 
       {/* {showGroupInfo && (
         <GroupInfoPanel

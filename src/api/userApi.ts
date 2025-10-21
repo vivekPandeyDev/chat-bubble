@@ -6,7 +6,7 @@ import type { TokenRequest, TokenSuccessResponse } from "@/type/token";
 
 const generateToken = async (data: TokenRequest): Promise<TokenSuccessResponse> => {
   const response = await axiosInstance.post("/api/token/generate", data);
-  console.log("generateToken response issuer:", response.data.data.issuer);
+  console.info("generateToken response issuer:", response.data.data.issuer);
   return response.data;
 };
 

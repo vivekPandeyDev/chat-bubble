@@ -2,9 +2,10 @@
 import axiosInstance from "./axiosInstance";
 import { PaginatedMessagesResponse } from "@/type/message";
 
-export const fetchMessagesByRoom = async (roomId: string, page = 1, size = 20) => {
+export const fetchMessagesByRoom = async (roomId: string, page = 1, size = 10) => {
+  console.log('fetch message',roomId,page,size)
   const response = await axiosInstance.get<PaginatedMessagesResponse>(
-    `/api/room/${roomId}/message?page=${page}&size=${size}`
+    `/api/room/${roomId}/message?offset=${page}&size=${size}&sortDir=desc&sortBy=sentAt`
   );
   return response.data;
 };
