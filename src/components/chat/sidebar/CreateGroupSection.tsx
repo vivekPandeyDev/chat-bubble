@@ -1,5 +1,5 @@
 
-import CreateGroupDialog from '@/components/chat/CreateGroupDialog';
+import CreateGroupDialog from '@/components/chat/group/CreateGroupDialog';
 
 const CreateGroupSection = () => (
   <div className="p-4 border-t border-border">

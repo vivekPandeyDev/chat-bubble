@@ -6,6 +6,15 @@ export interface User {
   avatarUrl: string | null;
 }
 
+
+export interface UserPaginationResponse {
+  content: User[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
 export interface UserSuccessResponse {
   success: true;
   message: string;

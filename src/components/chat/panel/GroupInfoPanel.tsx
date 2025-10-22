@@ -83,7 +83,7 @@ const GroupInfoPanel = ({ room, currentUser }: GroupInfoPanelProps) => {
           <div className="text-center space-y-3">
             <Avatar className="h-20 w-20 mx-auto">
               <AvatarImage src={room.roomProfileUrl} />
-              <AvatarFallback>{room.roomName?.[0].toUpperCase()}</AvatarFallback>
+              <AvatarFallback>{room.roomName[0]?.toUpperCase()}</AvatarFallback>
               {/* Upload overlay */}
               <label
                 htmlFor="avatar-upload"

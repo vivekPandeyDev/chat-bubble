@@ -85,7 +85,7 @@ const ChatPanel = ({ selectedRoomId }: ChatPanelProps) => {
       </div>
     );
   }
-  console.log('Rendering ChatPanel for room:', room.groupProfileUrl, 'user:', currentUser.userId);
+  console.log('Rendering ChatPanel for room:', room, 'user:', currentUser.userId);
 
   return (
     <div className="flex-1 flex flex-col h-full bg-background">

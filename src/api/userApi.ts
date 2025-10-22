@@ -1,6 +1,6 @@
 // src/api/userApi.ts
 import axiosInstance from "./axiosInstance";
-import { SignupRequest, UserSuccessResponse } from "@/type/user";
+import { SignupRequest, UserPaginationResponse, UserSuccessResponse } from "@/type/user";
 import type { TokenRequest, TokenSuccessResponse } from "@/type/token";
 
 
@@ -44,4 +44,11 @@ const uploadProfileImage = async (userId: string, file: File) => {
   return response.data;
 };
 
-export {fetchCurrentUser,fetchUserById,signupUser,uploadProfileImage,generateToken}
+const fetchAvailableUsers = async (query: string, page = 0, size = 10) => {
+  const res = await axiosInstance.get<UserPaginationResponse>(`/api/user/search`, {
+    params: { query, offset: page, size },
+  });
+  return res.data;
+};
+
+export {fetchCurrentUser,fetchUserById,signupUser,uploadProfileImage,generateToken,fetchAvailableUsers}

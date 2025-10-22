@@ -39,7 +39,7 @@ const ChatRoomListItem = ({ room, isActive, onSelect }: ChatRoomListItemProps) =
         <div className="relative">
           <Avatar className="h-12 w-12">
             <AvatarImage src={avatar} />
-            <AvatarFallback>{name[0].toUpperCase()}</AvatarFallback>
+            <AvatarFallback>{name[0]?.toUpperCase()}</AvatarFallback>
           </Avatar>
         </div>
 
