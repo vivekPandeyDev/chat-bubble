@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, UserPlus, Crown, UserMinus, Clock } from 'lucide-react';
+import { X, UserPlus, Crown, UserMinus, Clock, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -19,17 +19,17 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { RoomInfo } from '@/type/room';
 import { User } from '@/type/user';
+import { useUploadRoomAvatar } from '@/hooks/user-upload-room-avatar';
 
 interface GroupInfoPanelProps {
   room: RoomInfo;
   currentUser: User;
-  onClose: () => void;
 }
 
-const GroupInfoPanel = ({ room, currentUser, onClose }: GroupInfoPanelProps) => {
+const GroupInfoPanel = ({ room, currentUser }: GroupInfoPanelProps) => {
   console.log('GroupInfoPanel rendered for room:', room, 'and user:', currentUser);
   const { toast } = useToast();
-
+  const uploadMutation = useUploadRoomAvatar(room.roomId,currentUser.userId);
   const participants = room.participants;
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
@@ -39,6 +39,12 @@ const GroupInfoPanel = ({ room, currentUser, onClose }: GroupInfoPanelProps) => 
     setShowRemoveDialog(true);
   };
 
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    uploadMutation.mutate(file);
+  };
   const confirmRemove = () => {
     console.log('Removing user:', selectedUserId);
     toast({
@@ -49,20 +55,20 @@ const GroupInfoPanel = ({ room, currentUser, onClose }: GroupInfoPanelProps) => 
     setSelectedUserId(null);
   };
 
-const getTimeRemaining = () => {
-  if (room.permanent || !room.expiresAt) return null;
-  const expiresAt = new Date(room.expiresAt);
-  const now = new Date(room.createdAt);
-  const diff = expiresAt.getTime() - now.getTime();
-  if (diff <= 0) return "Expired";
+  const getTimeRemaining = () => {
+    if (room.permanent || !room.expiresAt) return null;
+    const expiresAt = new Date(room.expiresAt);
+    const now = new Date(room.createdAt);
+    const diff = expiresAt.getTime() - now.getTime();
+    if (diff <= 0) return "Expired";
 
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-  if (hours <= 0 && minutes <= 0) return "Less than a minute left";
-  if (hours <= 0) return `${minutes}m left`;
-  return `${hours}h ${minutes}m left`;
-};
+    if (hours <= 0 && minutes <= 0) return "Less than a minute left";
+    if (hours <= 0) return `${minutes}m left`;
+    return `${hours}h ${minutes}m left`;
+  };
 
   return (
     <div className="w-80 border-l border-border bg-card flex flex-col animate-slide-in-right">
@@ -78,6 +84,33 @@ const getTimeRemaining = () => {
             <Avatar className="h-20 w-20 mx-auto">
               <AvatarImage src={room.roomProfileUrl} />
               <AvatarFallback>{room.roomName?.[0].toUpperCase()}</AvatarFallback>
+              {/* Upload overlay */}
+              <label
+                htmlFor="avatar-upload"
+                className={cn(
+                  "absolute inset-0 flex items-center justify-center rounded-full transition-all cursor-pointer",
+                  uploadMutation.isPending
+                    ? "bg-black/70 opacity-100"
+                    : "bg-black/50 opacity-0 group-hover:opacity-100 hover:bg-black/60"
+                )}
+              >
+                {uploadMutation.isPending ? (
+                  <div className="flex items-center gap-2 text-white">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-xs font-medium">Uploading...</span>
+                  </div>
+                ) : (
+                  <span className="text-white text-sm font-medium">Upload</span>
+                )}
+              </label>
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarUpload}
+                disabled={uploadMutation.isPending}
+              />
             </Avatar>
             <div>
               <h2 className="font-semibold text-lg">{room.roomName}</h2>
@@ -121,7 +154,7 @@ const getTimeRemaining = () => {
 
             <div className="space-y-2">
               {participants.map((user) => (
-                
+
                 <div
                   key={user.userId}
                   className={cn(

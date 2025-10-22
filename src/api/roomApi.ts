@@ -15,3 +15,14 @@ export const fetchRoomProjections = async (userId: string) => {
         `/api/room/projection/user/${userId}`);
     return response.data;
 };
+
+export const uploadRoomAvatar = async (roomId: string, file: File) => {
+  const formData = new FormData();
+  formData.append("avatar", file);
+
+  const response = await axiosInstance.put(`/api/room/${roomId}/avatar`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+  return response.data;
+};
