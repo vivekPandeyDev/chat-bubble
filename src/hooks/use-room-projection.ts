@@ -8,7 +8,7 @@ import { AxiosErrorWithProblem } from "@/type/error";
 export const useRoomProjections = (userId: string | undefined) => {
   const { token } = useContext(AuthContext);
   return useQuery<RoomProjectionResponse,AxiosErrorWithProblem>({
-    queryKey: ["roomProjections", userId],
+    queryKey: ["rooms","user", userId],
     queryFn: async () => {
       if (!token) throw new Error("No auth token");
       if (!userId) throw new Error("No user ID provided");

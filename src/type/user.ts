@@ -1,16 +1,15 @@
-
-export interface UserResponse {
+export interface User {
   userId: string;
   username: string;
   email: string;
-  status: string;
+  status: "ONLINE" | "OFFLINE";
   avatarUrl: string | null;
 }
 
 export interface UserSuccessResponse {
   success: true;
   message: string;
-  data: UserResponse;
+  data: User;
 }
 
 export interface UserErrorResponse {

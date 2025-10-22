@@ -23,7 +23,6 @@ const formatTimestamp = (date: Date) => {
 };
 
 const ChatRoomListItem = ({ room, isActive, onSelect }: ChatRoomListItemProps) => {
-  console.info('rendering chat room list for room id:',room.roomId, ', room name:', room.roomName, 'isActive:', isActive);
   const avatar = room.roomProfileUrl;
   const name = room.roomName;
   const unreadCount = room.unreadCount || 1;
