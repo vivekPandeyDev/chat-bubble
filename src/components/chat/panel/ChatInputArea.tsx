@@ -6,23 +6,32 @@ import { Send } from 'lucide-react';
 import EmojiPicker from './EmojiPicker';
 import FileUpload from './FileUpload';
 import { useToast } from '@/hooks/use-toast';
+import { useSendTextMessage } from '@/hooks/use-send-message';
 
 interface ChatInputAreaProps {
+  senderId: string;
   selectedRoomId: string;
   onMessageSent: () => void;
   onTypingChange?: (isTyping: boolean) => void;
 }
 
-const ChatInputArea = ({ selectedRoomId, onMessageSent,onTypingChange }: ChatInputAreaProps) => {
+const ChatInputArea = ({ senderId, selectedRoomId, onMessageSent, onTypingChange }: ChatInputAreaProps) => {
   const { toast } = useToast();
   const [message, setMessage] = useState('');
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
-  
+  const { mutation } = useSendTextMessage(selectedRoomId);
+
   const handleSend = () => {
     if (!message.trim()) return;
     toast({ title: 'Message sent', description: message });
-    setMessage('');
-    onMessageSent();
+    mutation.mutate({ content: message, messageType: 'TEXT', senderId: senderId }, {
+      onSuccess: () => {
+        setMessage('');
+        onMessageSent();
+      }
+    }
+    );
+
   };
   const handleTyping = (value: string) => {
     setMessage(value);

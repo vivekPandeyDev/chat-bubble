@@ -11,7 +11,6 @@ import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import { useRoomInfo } from '@/hooks/use-room-info';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 
-export const MESSAGES_PER_PAGE = 10;
 interface ChatPanelProps {
   selectedRoomId: string | null;
 }
@@ -20,7 +19,7 @@ const ChatPanel = ({ selectedRoomId }: ChatPanelProps) => {
   console.info('is room selected', !!selectedRoomId);
   const navigate = useNavigate();
   const { data: currentUser, isLoading: isUserLoading, error: userError } = useCurrentUser();
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useChatMessages(selectedRoomId);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useChatMessages(selectedRoomId,20);
   const { data: room, isLoading: isRoomLoading, error: roomError } = useRoomInfo(selectedRoomId);
   const [isTyping, setIsTyping] = useState(false);
   const [showGroupInfo, setShowGroupInfo] = useState(false);
@@ -61,7 +60,17 @@ const ChatPanel = ({ selectedRoomId }: ChatPanelProps) => {
   }, [userError]);
 
   const handleMessageSent = () => {
-    refetch();
+    console.log('Message sent, refetching messages...');
+    refetch().then(() => {
+      // Scroll to bottom after new message is loaded
+      const el = scrollRef.current;
+      if (el) {
+        requestAnimationFrame(() => {
+          el.scrollTop = el.scrollHeight;
+        });
+      }
+    });
+    
   };
 
   // if no room is selected
@@ -110,7 +119,7 @@ const ChatPanel = ({ selectedRoomId }: ChatPanelProps) => {
         <ScrollAreaPrimitive.Scrollbar orientation="vertical" />
       </ScrollAreaPrimitive.Root>
 
-      <ChatInputArea selectedRoomId={selectedRoomId} onMessageSent={() => { handleMessageSent() }} onTypingChange={setIsTyping} />
+      <ChatInputArea senderId= {currentUser.userId} selectedRoomId={selectedRoomId} onMessageSent={() => { handleMessageSent() }} onTypingChange={setIsTyping} />
 
       <Sheet open={showGroupInfo} onOpenChange={setShowGroupInfo}>
         <SheetContent side="right" className="w-96 p-0">

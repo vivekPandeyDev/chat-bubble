@@ -8,6 +8,11 @@ export interface Message {
   type: 'TEXT' | 'IMAGE' | 'FILE';
 }
 
+export interface SendTextMessageRequest {
+  senderId: string;
+  content: string;
+  messageType: "TEXT";
+}
 export interface PaginatedMessagesResponse {
   content: Message[];
   page: number;
