@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import { useRoomInfo } from '@/hooks/use-room-info';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { useRoomSocket } from '@/hooks/use-room-socket';
 
 interface ChatPanelProps {
   selectedRoomId: string | null;
@@ -17,31 +18,33 @@ interface ChatPanelProps {
 
 const ChatPanel = ({ selectedRoomId }: ChatPanelProps) => {
   console.info('is room selected', !!selectedRoomId);
+  
   const navigate = useNavigate();
   const { data: currentUser, isLoading: isUserLoading, error: userError } = useCurrentUser();
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useChatMessages(selectedRoomId,20);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useChatMessages(selectedRoomId, 20);
   const { data: room, isLoading: isRoomLoading, error: roomError } = useRoomInfo(selectedRoomId);
   const [isTyping, setIsTyping] = useState(false);
   const [showGroupInfo, setShowGroupInfo] = useState(false);
-
+  const { sendMessage, connectionStatus } = useRoomSocket(selectedRoomId, currentUser?.userId);
+  const [scrollAtBottom, setScrollAtBottom] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const didInitialScroll = useRef(false);
-
+  console.info('connectionStatus for',connectionStatus, 'room id:', selectedRoomId);
   const displayedMessages = data?.pages
     .sort((a, b) => a.page - b.page)
     .flatMap(page => page.content).reverse() || [];
   // Scroll only once on first load
   useEffect(() => {
-    if (didInitialScroll.current) return;
-    if (displayedMessages.length === 0) return;
+    console.log('ChatPanel useEffect for initial scroll, messages length:', displayedMessages.length, 'scrollAtBottom:', scrollAtBottom);
 
+    if (displayedMessages.length === 0 || scrollAtBottom == false) return;
     const el = scrollRef.current;
+    console.log('ChatPanel scrolling to bottom, element:', el);
     if (!el) return;
-
+    console.log('ChatPanel performing initial scroll to bottom');
     requestAnimationFrame(() => {
       el.scrollTop = el.scrollHeight;
-      didInitialScroll.current = true;
     });
+    setScrollAtBottom(false);
   }, [displayedMessages.length]);
 
   // handle errors
@@ -59,18 +62,10 @@ const ChatPanel = ({ selectedRoomId }: ChatPanelProps) => {
 
   }, [userError]);
 
-  const handleMessageSent = () => {
-    console.log('Message sent, refetching messages...');
-    refetch().then(() => {
-      // Scroll to bottom after new message is loaded
-      const el = scrollRef.current;
-      if (el) {
-        requestAnimationFrame(() => {
-          el.scrollTop = el.scrollHeight;
-        });
-      }
-    });
-    
+  const handleMessageSent = (msg: string) => {
+    sendMessage(msg);
+    setScrollAtBottom(true);
+
   };
 
   // if no room is selected
@@ -119,7 +114,7 @@ const ChatPanel = ({ selectedRoomId }: ChatPanelProps) => {
         <ScrollAreaPrimitive.Scrollbar orientation="vertical" />
       </ScrollAreaPrimitive.Root>
 
-      <ChatInputArea senderId= {currentUser.userId} selectedRoomId={selectedRoomId} onMessageSent={() => { handleMessageSent() }} onTypingChange={setIsTyping} />
+      <ChatInputArea onMessageSent={handleMessageSent} onTypingChange={setIsTyping} />
 
       <Sheet open={showGroupInfo} onOpenChange={setShowGroupInfo}>
         <SheetContent side="right" className="w-96 p-0">

@@ -15,5 +15,6 @@ export const useCurrentUser = () => {
       return fetchCurrentUser(token);
     },
     enabled: !!token,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
